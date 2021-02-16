@@ -78,7 +78,7 @@ def sankey_total_sales_by_region(df):
     central_sales = df.loc[dataset['Region'] == 'Central', 'Sales'].sum()
     # Plot Sankey 
     Sankey(
-        flows=[south_sales_K, east_sales_K, west_sales_K, central_sales_K, -total_sales_K],
+        flows=[south_sales, east_sales, west_sales, central_sales, -total_sales],
         labels=['South', 'East', 'West', 'Central', 'Total'],
         orientations=[0, 0, 1, -1, 0],
         # fill = False
@@ -139,7 +139,7 @@ def sankey_total_sales_by_category_in_region_in_year(df,region,year,colour):
 
 # # Sankey of total sales by region & year in Thousands
 # for y in years:
-    # sankey_total_sales_by_region_by_year_in_K(df,year)
+    # sankey_total_sales_by_region_by_year_in_K(dataset,y)
 
 # # sankey of category in regions & years, with in random colours
 # for r in regions:
