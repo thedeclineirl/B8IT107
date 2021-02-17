@@ -18,11 +18,11 @@ import random
 ##### Importing dataset and examining it
 ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
 
-dataset = pd.read_csv("../datasets/train.csv")
-state_pop = pd.read_csv("../datasets/state_pop.csv")
-# print(dataset.head())
-# print(dataset.shape)
-# print(dataset.info())
+dataset = pd.read_csv("datasets/train.csv")
+state_pop = pd.read_csv("datasets/state_pop.csv")
+print(dataset.head())
+print(dataset.shape)
+print(dataset.info())
 # print(dataset['Region'])
 # print(sum(dataset['Sales']))
 # print(sum(state_pop['population 2019']))
@@ -43,6 +43,20 @@ def get_dom(column):
     date = column.split('/')
     return date[0]
 
+def fix_postcode(column):
+    # Postcodes are missing for Burlington vermont, 5401, so they need to be added manually
+    if column == '':
+        return '5401'
+    else:
+        # columns intially imported as floats, they were converted to string but now we need to get rid of the .0 at the end
+        temp = column.split('.')
+        return temp[0]
+
+dataset['Postal Code'] = dataset['Postal Code'].astype(str) 
+dataset['Postal Code'] = dataset['Postal Code'].apply(fix_postcode)
+# # examine dataset for changes
+# print(dataset.info())
+
 # Create date columns based on order date
 dataset['order_year'] = dataset['Order Date'].apply(get_year)
 dataset['order_month'] = dataset['Order Date'].apply(get_month)
@@ -55,7 +69,7 @@ dataset['order_year'] = dataset['order_year'].apply(pd.to_numeric)
 dataset['order_month'] = dataset['order_month'].apply(pd.to_numeric)
 dataset['order_dom'] = dataset['order_dom'].apply(pd.to_numeric)
 # # examine dataset for changes again
-# print(dataset.info())
+print(dataset.info())
 
 ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
 # Variable for iterating through the datset
