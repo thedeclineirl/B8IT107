@@ -14,22 +14,17 @@ import matplotlib.pyplot as plt
 from matplotlib.sankey import Sankey
 import random
 
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
-##### Importing dataset and examining it
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # create functions for data clean-up and column splitting 
 
-dataset = pd.read_csv("datasets/train.csv")
-state_pop = pd.read_csv("datasets/state_pop.csv")
-print(dataset.head())
-print(dataset.shape)
-print(dataset.info())
-# print(dataset['Region'])
-# print(sum(dataset['Sales']))
-# print(sum(state_pop['population 2019']))
-
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
-### adding extra columns
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
+def fix_postcode(column):
+    # Postcodes are missing for Burlington vermont, 5401, so they need to be added manually
+    if column == '':
+        return '5401'
+    else:
+        # columns intially imported as floats, they were converted to string but now we need to get rid of the .0 at the end
+        temp = column.split('.')
+        return temp[0]
 
 def get_year(column):
     date = column.split('/')
@@ -43,19 +38,38 @@ def get_dom(column):
     date = column.split('/')
     return date[0]
 
-def fix_postcode(column):
-    # Postcodes are missing for Burlington vermont, 5401, so they need to be added manually
-    if column == '':
-        return '5401'
-    else:
-        # columns intially imported as floats, they were converted to string but now we need to get rid of the .0 at the end
-        temp = column.split('.')
-        return temp[0]
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # Importing dataset and examining it
 
+import_path = "datasets/train.csv"
+export_path = "datasets/train_cleaned.csv"
+
+dataset = pd.read_csv(import_path)
+state_pop = pd.read_csv("datasets/state_pop.csv")
+print(dataset.head())
+print(dataset.shape)
+print(dataset.info())
+# print(dataset['Region'])
+# print(sum(dataset['Sales']))
+# print(sum(state_pop['population 2019']))
+
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # cleaning the dataset, adding missing values and exporting a cleaned csv for use in tableau
+
+# drop Row ID because we don't need it for the data analysis
+dataset = dataset.drop(axis = 1, labels = 'Row ID')       
+# convert Postal code to string
 dataset['Postal Code'] = dataset['Postal Code'].astype(str) 
+# add in missing postcodes
 dataset['Postal Code'] = dataset['Postal Code'].apply(fix_postcode)
 # # examine dataset for changes
 # print(dataset.info())
+
+# export dataset as is for analysis in Tableau
+dataset.to_csv(export_path,index = False)
+
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # adding extra columns for analysis in Python
 
 # Create date columns based on order date
 dataset['order_year'] = dataset['Order Date'].apply(get_year)
@@ -68,20 +82,23 @@ dataset['order_dom'] = dataset['Order Date'].apply(get_dom)
 dataset['order_year'] = dataset['order_year'].apply(pd.to_numeric)
 dataset['order_month'] = dataset['order_month'].apply(pd.to_numeric)
 dataset['order_dom'] = dataset['order_dom'].apply(pd.to_numeric)
+
+# drop columns we won't use
+dataset = dataset.drop(axis = 1, labels = ['Order Date', 'Ship Date'])  
+
 # # examine dataset for changes again
 print(dataset.info())
 
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
-# Variable for iterating through the datset
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# create variable for iterating through the datset
+
 regions = ['East','South','Central','West']
 years = [2015,2016,2017,2018]
 categories = ['Furniture','Office Supplies','Technology']
 colours = ['red','green','blue','yellow','pink','orange','purple']
 
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
-### Create Functions for drawing the plots
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # Create Functions for drawing the plots
 
 def sankey_total_sales_by_region(df):
     # Calculate sales 
@@ -144,9 +161,9 @@ def sankey_total_sales_by_category_in_region_in_year(df,region,year,colour):
     plt.show()
 
 
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
-##### Running Functions
-##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ ##### $$$$$ ##### €€€€€€ 
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
+# # Running plotting Functions
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- #
 
 # # Sankey of total sales by region
 # sankey_total_sales_by_region(dataset)
